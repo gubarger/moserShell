@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <iostream>
 #include <ostream>
 #include <string>
@@ -21,7 +22,7 @@ void Shell::REPL() {
         }
         else {
             // TODO: does not execute commands yet
-            std::cout << "You text: " << input << '\n';
+            if(!input.empty()) std::cout << "You text: " << input << '\n';
         }
     }
     return;

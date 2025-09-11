@@ -1,0 +1,3 @@
+/home/kirill/Документы/moserShell/build/CMakeFiles/moser.dir
+/home/kirill/Документы/moserShell/build/CMakeFiles/edit_cache.dir
+/home/kirill/Документы/moserShell/build/CMakeFiles/rebuild_cache.dir
