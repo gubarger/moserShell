@@ -23,12 +23,17 @@ cd moserShell
 ```bash
 mkdir build && cd build
 cmake ..
-cmake --build . # or use 'make' on Unix-like systems
+cmake --build . # or use 'make' on Unix-like systems.
 ```
 
 3) Run the shell:
 ```bash
 ./moser
+```
+
+There is a shared one in the repository `.gitignore` is for everyone. **If you need a personal one, then follow this example**:
+```bash
+cp .gitignore.example .gitignore.local # edit to suit your needs.
 ```
 
 ## ✨ Chips and Possibilites
