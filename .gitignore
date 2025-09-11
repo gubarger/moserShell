@@ -1,5 +1,11 @@
-# Floaders
+# Floaders and Tests
 Build/
+Test/bin/
+Test/build/
+test_results/
+coverage/
+*.gcno
+*.gcda
 
 # Copies and Temporary files
 *~
