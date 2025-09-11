@@ -1,0 +1,66 @@
+# ==============================================
+# .gitignore.example
+# TEMPLATE for creating a personal .gitignore.local
+# ==============================================
+
+# This file is versioned in Git. Do not edit it directly.
+
+# To add personal rules:
+# 1. Copy this file: `cp .gitignore.example .gitignore.local`
+# 2. Edit .gitignore.local to suit your needs.
+# 3. Your .gitignore.local will be automatically taken into account by git.
+
+# ==============================================
+# Basic general rules are already in .gitignore
+# Don't duplicate them here! This file is for PERSONAL settings only.
+# ==============================================
+
+# ##############################################
+# IDE and CODE EDITOR SETTINGS
+# Uncomment the sections you need
+# ##############################################
+
+# --- JetBrains (IntelliJ IDEA, WebStorm, PyCharm, etc) ---
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# --- VS Code ---
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# --- macOS ---
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# --- Windows ---
+Thumbs.db
+[Dd]esktop.ini
+
+# ##############################################
+# PERSONAL project settings
+# ##############################################
+
+# For example, if you use a different path for logs:
+# logs/development.log
+
+# Or if you are developing using Docker and want to ignore your local config files:
+# docker-compose.override.yml
+
+# Or your local environment variable files (DO NOT add real secrets here!):
+# .env.local
+# .env.development.local
+
+
+# ##############################################
+# SERVICE COMMENTS
+# ##############################################
+
+# The .gitignore.local file is processed after the main .gitignore.
+# here you can even unignore something that was ignored in the main file using !:
+# !example.file
