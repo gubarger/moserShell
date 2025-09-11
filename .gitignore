@@ -1,3 +1,13 @@
+# Floaders
+Build/
+
+# Copies and Temporary files
+*~
+*.swp
+*.swo
+*.tmp
+*.backup
+
 # Prerequisites
 *.d
 
@@ -39,3 +49,6 @@
 
 # debug information files
 *.dwo
+
+# Local file with personal settings
+.gitignore.local
