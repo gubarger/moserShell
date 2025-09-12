@@ -1,7 +1,7 @@
 # Floaders and Tests
-Build/
-Test/bin/
-Test/build/
+build/
+test/bin/
+test/build/
 test_results/
 coverage/
 *.gcno
