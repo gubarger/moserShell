@@ -8,6 +8,7 @@ class Shell {
 public:
     explicit Shell() = default;
     ~Shell() noexcept = default;
+
     /**
      * @brief main cycle of the program
      * 
