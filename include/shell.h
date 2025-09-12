@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string.h>
 
+struct Parser;
+
 class Shell {
 public:
     explicit Shell() = default;
