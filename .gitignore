@@ -4,6 +4,7 @@ test/bin/
 test/build/
 test_results/
 coverage/
+.vscode/
 *.gcno
 *.gcda
 
