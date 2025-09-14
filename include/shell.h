@@ -19,7 +19,8 @@ public:
      * and the command is executed
      *
      * @return none
-     * */
+     * 
+     */
     void REPL(); // main work loop
 
 private:

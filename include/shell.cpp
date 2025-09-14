@@ -18,30 +18,23 @@ void Shell::REPL() {
         if(!std::getline(std::cin, input)) {
             break; // If EOF (Ctrl + D)
         }
+        if(input.empty()) continue;
 
-        // ---- Parsing ---- Reset parser state for new input
-        pars.iss_.clear(); // Reset failes
-        pars.iss_.str(input); // Set a new line to the stream
-        pars.args_.clear(); // Clear old args
+        // Parsing
+        std::vector<std::string> tokens = pars.tokenize(input);
 
-        while (pars.iss_ >> pars.arg_) {
-            pars.args_.push_back(pars.arg_);
-        }
-
-        if(pars.args_.empty()) continue;
-
-        // Execute (not yet separately)
-        if(pars.args_[0] == "byemoser") {
+        // Execute
+        if(tokens[0] == "byemoser") {
             break;
         }
         else {
-            // TODO: does not execute commands yet. Not fork/exec
-            std::cout << "Command: " << pars.args_[0] << '\n';
-            std::cout << "Args: ";
-            for(size_t i = 0; i < pars.args_.size(); i++) {
-                std::cout << pars.args_[i] << " ";
+            std::cout << "tokens:\n";
+            for(const auto& token : tokens) {
+                std::cout << "[" << token << "] ";
             }
             std::cout << '\n';
+
+            // TODO: add command execution logic here
         }
     }
     return;
