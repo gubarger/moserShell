@@ -1,8 +1,12 @@
+#include <cstddef>
 #include <iostream>
 #include <ostream>
 #include <string>
 
 #include "shell.h"
+#include "parser.h"
+
+Parser pars;
 
 void Shell::REPL() {
     // Read-Eval-Print loop
@@ -14,14 +18,23 @@ void Shell::REPL() {
         if(!std::getline(std::cin, input)) {
             break; // If EOF (Ctrl + D)
         }
+        if(input.empty()) continue;
 
-        // Execute (not yet separately)
-        if(input == "byemoser") {
+        // Parsing
+        std::vector<std::string> tokens = pars.tokenize(input);
+
+        // Execute
+        if(tokens[0] == "byemoser") {
             break;
         }
         else {
-            // TODO: does not execute commands yet
-            if(!input.empty()) std::cout << "You text: " << input << '\n';
+            std::cout << "tokens:\n";
+            for(const auto& token : tokens) {
+                std::cout << "[" << token << "] ";
+            }
+            std::cout << '\n';
+
+            // TODO: add command execution logic here
         }
     }
     return;

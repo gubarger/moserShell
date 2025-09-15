@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string.h>
 
+struct Parser;
+
 class Shell {
 public:
     explicit Shell() = default;
@@ -17,7 +19,8 @@ public:
      * and the command is executed
      *
      * @return none
-     * */
+     * 
+     */
     void REPL(); // main work loop
 
 private:
