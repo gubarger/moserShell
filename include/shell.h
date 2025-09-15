@@ -4,7 +4,8 @@
 #include <iostream>
 #include <string.h>
 
-struct Parser;
+class Parser;
+class Executor;
 
 class Shell {
 public:

@@ -5,8 +5,10 @@
 
 #include "shell.h"
 #include "parser.h"
+#include "executor.h"
 
 Parser pars;
+Executor exec;
 
 void Shell::REPL() {
     // Read-Eval-Print loop
@@ -32,9 +34,10 @@ void Shell::REPL() {
             for(const auto& token : tokens) {
                 std::cout << "[" << token << "] ";
             }
-            std::cout << '\n';
+            std::cout << "\n\n\n";
 
             // TODO: add command execution logic here
+            exec.execute_command(tokens);
         }
     }
     return;
