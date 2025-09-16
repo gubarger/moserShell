@@ -30,12 +30,6 @@ void Shell::REPL() {
             break;
         }
         else {
-            // std::cout << "tokens:\n";
-            // for(const auto& token : tokens) {
-            //     std::cout << "[" << token << "] ";
-            // }
-            // std::cout << "\n\n\n";
-
             // TODO: add command execution logic here
             exec.execute_command(tokens);
         }

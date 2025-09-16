@@ -26,8 +26,5 @@ void Executor::execute_command(const std::vector<std::string>& tokens) {
         int status{};
 
         waitpid(pid, &status, 0);
-        // if (WIFEXITED(status)) {
-        //     std::cout << "command end with code: " << WEXITSTATUS(status) << '\n';
-        // }  
     }
 }
