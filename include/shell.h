@@ -6,6 +6,7 @@
 
 class Parser;
 class Executor;
+class History;
 
 class Shell {
 public:
@@ -23,9 +24,6 @@ public:
      * 
      */
     void REPL(); // main work loop
-
-private:
-    std::string input{};
 };
 
 #endif // INCLUDE_SHELL_H_
