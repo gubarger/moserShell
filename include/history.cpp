@@ -6,6 +6,8 @@
 
 #include "history.h"
 
+#include <absl/strings/str_cat.h>
+
 void History::load() {
     std::ifstream file(historyFile_);
     if(!file) return;
@@ -51,4 +53,22 @@ void History::print() {
         std::cout << count << " " << cmd << '\n';
         count++;
     }
+}
+
+bool History::empty() const {
+    return history_.empty();
+}
+
+size_t History::size() {
+    return history_.size();
+}
+
+absl::StatusOr<std::string> History::last() const {
+    if(history_.empty()) return absl::NotFoundError("No commands in history");
+    return history_.back();
+}
+
+absl::StatusOr<std::string> History::get(int n) const {
+    if(n < 1 || n > static_cast<int>(history_.size())) return absl::NotFoundError(absl::StrCat("Invalid history index: ", n));
+    return history_[n - 1];
 }

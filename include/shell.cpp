@@ -12,6 +12,9 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
+#include <absl/strings/str_cat.h>
+#include <absl/strings/numbers.h>
+
 Parser pars;
 Executor exec;
 History history;
@@ -31,10 +34,43 @@ void Shell::REPL() {
         if(!input) break; // If EOF (Ctrl + D)
 
         if(*input) {
-            add_history(input);
+            std::string processed_input = input; // Handle history expansion
             
+            // Handle history expansion
+            if(processed_input == "!!") { // last command exec
+                auto command_last = history.last();
+                if(!command_last.ok()) {
+                    std::cerr << command_last.status().message() << '\n';
+                    free(input);
+                    continue;
+                }
+
+                processed_input = *command_last;
+                std::cout << processed_input << '\n';
+            }
+            else if(processed_input.size() > 1 && processed_input[0] == '!' && std::isdigit(processed_input[1])) { // command n exec
+                int n{};
+
+                if(absl::SimpleAtoi(processed_input.substr(1), &n)) {
+                    auto command_history = history.get(n);
+
+                    if(!command_history.ok()) {
+                        std::cerr << command_history.status().message() << '\n';
+                        free(input);
+                        continue;
+                    }
+
+                    processed_input = *command_history;
+                    std::cout << processed_input << '\n';
+                }
+            }
+
+            // Add to history
+            add_history(processed_input.c_str());
+            history.add(processed_input);
+
             // Parsing
-            std::vector<std::string> tokens = pars.tokenize(input);
+            std::vector<std::string> tokens = pars.tokenize(processed_input);
 
             // Execute
             if(tokens[0] == "byemoser") break;
@@ -57,9 +93,14 @@ void Shell::REPL() {
                 }
                 continue; // No move to fork/exec
             }
-
-            // TODO: add command execution logic here
-            exec.execute_command(tokens);
+            else if(tokens[0] == "history") {
+                history.print();
+                continue;
+            }
+            else {
+                // TODO: add command execution logic here
+                exec.execute_command(tokens);
+            }
         }
         free(input);
     }

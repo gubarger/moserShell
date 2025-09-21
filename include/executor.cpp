@@ -24,7 +24,6 @@ void Executor::execute_command(const std::vector<std::string>& tokens) {
     }
     else { // parent process
         int status{};
-
         waitpid(pid, &status, 0);
     }
 }

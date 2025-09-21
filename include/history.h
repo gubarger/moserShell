@@ -4,6 +4,9 @@
 #include <vector>
 #include <string>
 
+#include <absl/status/status.h>
+#include <absl/status/statusor.h>
+
 class History {
 public:
     explicit History(size_t maxSieze = 500, const std::string& file = ".moser_history") : 
@@ -13,8 +16,13 @@ public:
     void save();
     void add(const std::string& command);
     void print();
+    bool empty() const;
+    size_t size();
 
-    std::string navigationOnHistory(History& history) {};
+    // ---Comands---
+    absl::StatusOr<std::string> last() const;
+    absl::StatusOr<std::string> get(int n) const;
+
 private:
     std::vector<std::string> history_{};
     std::string historyFile_{};

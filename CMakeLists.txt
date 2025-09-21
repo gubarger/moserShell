@@ -9,11 +9,30 @@ file(GLOB_RECURSE SOURCES
     "source/*.cpp"
 )
 
+# create programm
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE include)
 
-find_package(PkgConfig REQUIRED)
+find_package(absl REQUIRED COMPONENTS
+    strings
+    status
+    statusor
+    numbers
+    base
+)
+find_package(PkgConfig REQUIRED) # use PkgConfig
+
+# finding a libs
 pkg_search_module(READLINE REQUIRED readline)
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${READLINE_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} ${READLINE_LIBRARIES})
+target_include_directories(${PROJECT_NAME} PRIVATE 
+    ${READLINE_INCLUDE_DIRS}
+)
+
+target_link_libraries(${PROJECT_NAME} 
+    ${READLINE_LIBRARIES} 
+    absl::strings
+    absl::status
+    absl::statusor
+    absl::base
+)
