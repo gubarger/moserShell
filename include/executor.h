@@ -18,8 +18,12 @@ private:
     void execute_pipeline_command(const std::vector<std::string>& left, const std::vector<std::string> right);
 
 private:
+    int status{};
+    
     int input = STDIN_FILENO;
     int out = STDOUT_FILENO;
+
+    std::vector<pid_t> childPids{};
 };
 
 #endif // INCLUDE_EXECUTOR_H_

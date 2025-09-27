@@ -48,9 +48,14 @@ void History::add(const std::string& command) {
 }
 
 void History::print() {
+    std::ifstream file(historyFile_);
+    if(!file) return;
+    
     int count = 0;
-    for(const auto& cmd : history_) {
-        std::cout << count << " " << cmd << '\n';
+    std::string buffer{};
+    while (std::getline(file, buffer))
+    {
+        std::cout << count << " " << buffer << '\n';
         count++;
     }
 }

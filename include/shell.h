@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string.h>
+#include <limits.h>
 
 class Parser;
 class Executor;
@@ -10,7 +11,7 @@ class History;
 
 class Shell {
 public:
-    explicit constexpr Shell() noexcept = default;
+    explicit Shell() noexcept = default;
     ~Shell() noexcept = default;
 
     /**
@@ -24,6 +25,14 @@ public:
      * 
      */
     void REPL(); // main work loop
+
+    std::string getLinuxDistributionName();
+
+private:
+    char bufferCWD_[PATH_MAX];
+    std::string stringCWD_{};
+    const char* homeDir_ = getenv("HOME");
+    std::string distName_ = getLinuxDistributionName();
 };
 
 #endif // INCLUDE_SHELL_H_

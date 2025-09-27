@@ -1,8 +1,10 @@
 #include <cstddef>
 #include <iostream>
 #include <ostream>
+#include <fstream>
 #include <string>
 #include <wordexp.h>
+#include <regex>
 
 #include "shell.h"
 #include "parser.h"
@@ -28,9 +30,25 @@ void Shell::REPL() {
     // Read-Eval-Print loop
     while (true) {
         // Print
-        char* input = readline("moser> ");
-        
+        if (getcwd(bufferCWD_, sizeof(bufferCWD_)) != nullptr) {
+            stringCWD_ = bufferCWD_;
+
+            if(homeDir_ != nullptr) {
+                std::string homeStr(homeDir_);
+
+                if(stringCWD_.find(homeStr) == 0) {
+                    stringCWD_.replace(0, homeStr.length(), "~");
+                }
+            }
+        } 
+        else {
+            stringCWD_ = "unknown";
+        }
+
         // Read
+        std::string promt = distName_ + " | " + stringCWD_ + " | moser> ";
+        char* input = readline(promt.c_str());
+
         if(!input) break; // If EOF (Ctrl + D)
 
         if(*input) {
@@ -66,8 +84,11 @@ void Shell::REPL() {
             }
 
             // Add to history
-            add_history(processed_input.c_str());
-            history.add(processed_input);
+            if(strlen(input) > 0) {
+                add_history(processed_input.c_str());
+                history.add(processed_input);
+            }
+            std::cin.clear();
 
             // Parsing
             std::vector<std::string> tokens = pars.tokenize(processed_input);
@@ -98,11 +119,6 @@ void Shell::REPL() {
                 continue;
             }
             else {
-                // DEBUG: pars
-                for (std::string token : tokens) {
-                    std::cout << "command: " << token << '\n';
-                }
-                
                 // TODO: add command execution logic here
                 exec.execute_command(tokens);
             }
@@ -111,4 +127,24 @@ void Shell::REPL() {
     }
     write_history(".moser_history");
     return;
+}
+
+std::string Shell::getLinuxDistributionName() {
+    std::ifstream file("/etc/os-release");
+    if (!file.is_open()) {
+        return "Unknown";
+    }
+
+    std::string line{};
+    std::regex nameRegex("NAME=\"([^\"]+)\"");
+    std::smatch match{};
+
+    while (std::getline(file, line)) {
+        if (std::regex_match(line, match, nameRegex)) {
+            if (match.size() > 1) {
+                return match[1].str(); // Return the captured group
+            }
+        }
+    }
+    return "Unknown";
 }
