@@ -10,7 +10,7 @@ class History;
 
 class Shell {
 public:
-    explicit Shell() = default;
+    explicit constexpr Shell() noexcept = default;
     ~Shell() noexcept = default;
 
     /**

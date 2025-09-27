@@ -98,6 +98,11 @@ void Shell::REPL() {
                 continue;
             }
             else {
+                // DEBUG: pars
+                for (std::string token : tokens) {
+                    std::cout << "command: " << token << '\n';
+                }
+                
                 // TODO: add command execution logic here
                 exec.execute_command(tokens);
             }

@@ -9,7 +9,7 @@
 
 class History {
 public:
-    explicit History(size_t maxSieze = 500, const std::string& file = ".moser_history") : 
+    explicit History(size_t maxSieze = 500, const std::string& file = ".moser_history") noexcept : 
         maxSieze_(maxSieze), historyFile_(file), currentIndex_(0) {}
 
     void load();
