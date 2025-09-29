@@ -26,13 +26,13 @@ public:
      */
     void REPL(); // main work loop
 
-    std::string getLinuxDistributionName();
+    std::string get_distribution_name();
 
 private:
     char bufferCWD_[PATH_MAX];
     std::string stringCWD_{};
     const char* homeDir_ = getenv("HOME");
-    std::string distName_ = getLinuxDistributionName();
+    std::string distName_ = get_distribution_name();
 
     // Colors
     static constexpr const char* RESET_ = "\033[0m";

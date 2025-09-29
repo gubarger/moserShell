@@ -4,10 +4,12 @@
 #include "executor.h"
 
 void Executor::execute_command(const std::vector<std::string>& tokens) {
+    childPids_.clear();
+    
     auto pipePos = std::find(tokens.begin(), tokens.end(), "|");
 
     if (pipePos == tokens.end()) { // No pipe - simple command
-        execute_simple_command(tokens, input, out);
+        execute_simple_command(tokens, input_, out_, error_);
     }
     else { // Yes pipe - separating commands
         std::vector<std::string> cmdLeft(tokens.begin(), pipePos);
@@ -16,13 +18,19 @@ void Executor::execute_command(const std::vector<std::string>& tokens) {
         execute_pipeline_command(cmdLeft, cmdRight);
     }
 
-    for (pid_t pid : childPids) { // Waiting the pids
-        waitpid(pid, &status, 0);
+    for (pid_t pid : childPids_) { // Waiting the pids
+        waitpid(pid, &status_, 0);
     }
+
+    // Reset redirection state for each new command
+    inputFile_.clear();
+    outputFile_.clear();
+    errorFile_.clear();
+    appendOutput_ = false;
 }
 
-pid_t Executor::execute_simple_command(const std::vector<std::string>& tokens, int inputfd, int outfd) {
-    if(tokens.empty()) return -1;
+pid_t Executor::execute_simple_command(const std::vector<std::string>& tokens, int inputfd, int outfd, int errorfd) {
+    if (tokens.empty()) return -1;
 
     // converting vector to a array char*
     std::vector<char*> args{};
@@ -32,20 +40,61 @@ pid_t Executor::execute_simple_command(const std::vector<std::string>& tokens, i
     args.push_back(nullptr); // end array the null
 
     pid_t pid = fork(); // create process
-    childPids.push_back(pid);
-    if(pid == -1) { // error fork()
+    childPids_.push_back(pid);
+    if (pid == -1) { // error fork()
         perror("fork failed");
         return -1;
     }
-    else if(pid == 0) { // child process
-        if (inputfd != STDIN_FILENO) {
+    else if (pid == 0) { // child process
+        if (!inputFile_.empty()) { // >
+            int fd = open(inputFile_.c_str(), O_RDONLY);
+
+            if (fd < 0) {
+                perror("open input file");
+                exit(EXIT_FAILURE);
+            }
+
+            dup2(fd, STDIN_FILENO);
+            close(fd);
+        }
+        else if (inputfd != STDIN_FILENO) {
             dup2(inputfd, STDIN_FILENO);
             close(inputfd);
         }
 
-        if (outfd != STDOUT_FILENO) {
+        if (!outputFile_.empty()) { // <
+            int flags = O_WRONLY | O_CREAT;
+            flags |= appendOutput_ ? O_APPEND : O_TRUNC;
+
+            int fd = open(outputFile_.c_str(), flags, 0644);
+
+            if (fd < 0) {
+                perror("open output file");
+                exit(EXIT_FAILURE);
+            }
+
+            dup2(fd, STDOUT_FILENO);
+            close(fd);
+        }
+        else if (outfd != STDOUT_FILENO) {
             dup2(outfd, STDOUT_FILENO);
             close(outfd);
+        }
+
+        if (!errorFile_.empty()) { // 2>
+            int fd = open(errorFile_.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+
+            if (fd < 0) {
+                perror("open error file");
+                exit(EXIT_FAILURE);
+            }
+
+            dup2(fd, STDERR_FILENO);
+            close(fd);
+        }
+        else if (errorfd != STDERR_FILENO) {
+            dup2(errorfd, STDERR_FILENO);
+            close(errorfd);
         }
         execvp(args[0], args.data());
 
@@ -54,10 +103,9 @@ pid_t Executor::execute_simple_command(const std::vector<std::string>& tokens, i
         exit(EXIT_FAILURE);
     }
     else { // parent process
-        waitpid(pid, &status, 0);
-
-        if(inputfd != STDIN_FILENO) close(inputfd);
-        if(outfd != STDOUT_FILENO) close(outfd);
+        if (inputfd != STDIN_FILENO) close(inputfd);
+        if (outfd != STDOUT_FILENO) close(outfd);
+        if (errorfd != STDERR_FILENO) close(errorfd);
 
         return pid;
     }
@@ -71,26 +119,19 @@ void Executor::execute_pipeline_command(const std::vector<std::string>& left, co
     }
 
     // Start the left command
-    pid_t leftPid = execute_simple_command(left, input, pipefd[1]);
-    childPids.push_back(leftPid);
+    pid_t leftPid = execute_simple_command(left, input_, pipefd[1], error_);
     if (leftPid == -1) {
         close(pipefd[0]);
         close(pipefd[1]);
         return;
     }
-    
     close(pipefd[1]); // Close the unused end of the pipe for writing
-    int saveSTDIN = input;
-    input = pipefd[0];
-
+    
     // Start the right command
-    pid_t rightPid = execute_simple_command(right, input, out);
-    childPids.push_back(rightPid);
-
-    input = saveSTDIN; // Recover original input
+    pid_t rightPid = execute_simple_command(right, pipefd[0], out_, error_);
+    if (rightPid == -1) {
+        close(pipefd[0]);
+        return;
+    }
     close(pipefd[0]);
-
-    // Waiting for both commands to complete
-    waitpid(leftPid, &status, 0);
-    waitpid(rightPid, &status, 0);
 }

@@ -33,7 +33,7 @@ void Shell::REPL() {
         if (getcwd(bufferCWD_, sizeof(bufferCWD_)) != nullptr) {
             stringCWD_ = bufferCWD_;
 
-            if(homeDir_ != nullptr) {
+            if (homeDir_ != nullptr) {
                 std::string homeStr(homeDir_);
 
                 if(stringCWD_.find(homeStr) == 0) {
@@ -49,15 +49,15 @@ void Shell::REPL() {
         std::string promt = CYAN_ + distName_ + RESET_ + ":" + GREEN_ + stringCWD_ + RESET_ + ":" + BLUE_ + "moser> " + RESET_;
         char* input = readline(promt.c_str());
 
-        if(!input) break; // If EOF (Ctrl + D)
+        if (!input) break; // If EOF (Ctrl + D)
 
-        if(*input) {
+        if (*input) {
             std::string processed_input = input; // Handle history expansion
             
             // Handle history expansion
-            if(processed_input == "!!") { // last command exec
+            if (processed_input == "!!") { // last command exec
                 auto command_last = history.last();
-                if(!command_last.ok()) {
+                if (!command_last.ok()) {
                     std::cerr << command_last.status().message() << '\n';
                     free(input);
                     continue;
@@ -66,13 +66,13 @@ void Shell::REPL() {
                 processed_input = *command_last;
                 std::cout << processed_input << '\n';
             }
-            else if(processed_input.size() > 1 && processed_input[0] == '!' && std::isdigit(processed_input[1])) { // command n exec
+            else if (processed_input.size() > 1 && processed_input[0] == '!' && std::isdigit(processed_input[1])) { // command n exec
                 int n{};
 
-                if(absl::SimpleAtoi(processed_input.substr(1), &n)) {
+                if (absl::SimpleAtoi(processed_input.substr(1), &n)) {
                     auto command_history = history.get(n);
 
-                    if(!command_history.ok()) {
+                    if (!command_history.ok()) {
                         std::cerr << command_history.status().message() << '\n';
                         free(input);
                         continue;
@@ -84,7 +84,7 @@ void Shell::REPL() {
             }
 
             // Add to history
-            if(strlen(input) > 0) {
+            if (strlen(input) > 0) {
                 add_history(processed_input.c_str());
                 history.add(processed_input);
             }
@@ -94,17 +94,17 @@ void Shell::REPL() {
             std::vector<std::string> tokens = pars.tokenize(processed_input);
 
             // Execute
-            if(tokens[0] == "byemoser") break;
-            else if(tokens[0] == "cd") { // Change directory
-                if(tokens.size() < 2) std::cerr << "cd: missing argument" << '\n';
+            if (tokens[0] == "byemoser") break;
+            else if (tokens[0] == "cd") { // Change directory
+                if (tokens.size() < 2) std::cerr << "cd: missing argument" << '\n';
                 else {
                     std::string path = tokens[1];
                     
                     // Expand tilde to home directory
-                    if(path[0] == '~') {
+                    if (path[0] == '~') {
                         wordexp_t exptresult{};
 
-                        if(wordexp(path.c_str(), &exptresult, 0) == 0) {
+                        if (wordexp(path.c_str(), &exptresult, 0) == 0) {
                             path = exptresult.we_wordv[0];
                             wordfree(&exptresult);
                         }
@@ -114,13 +114,17 @@ void Shell::REPL() {
                 }
                 continue; // No move to fork/exec
             }
-            else if(tokens[0] == "history") {
+            else if (tokens[0] == "history") {
                 history.print();
                 continue;
             }
             else {
                 // TODO: add command execution logic here
-                exec.execute_command(tokens);
+                pars.process_redirection(tokens, exec);
+
+                if (!tokens.empty()) {
+                    exec.execute_command(tokens);
+                }
             }
         }
         free(input);
@@ -129,7 +133,7 @@ void Shell::REPL() {
     return;
 }
 
-std::string Shell::getLinuxDistributionName() {
+std::string Shell::get_distribution_name() {
     std::ifstream file("/etc/os-release");
     if (!file.is_open()) {
         return "Unknown";

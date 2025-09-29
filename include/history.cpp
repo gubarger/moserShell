@@ -10,7 +10,7 @@
 
 void History::load() {
     std::ifstream file(historyFile_);
-    if(!file) return;
+    if (!file) return;
 
     std::string buffer{};
     while (std::getline(file, buffer) && history_.size() < maxSieze_) {
@@ -23,15 +23,15 @@ void History::load() {
 
 void History::save() {
     std::ofstream file(historyFile_);
-    if(!file) return;
+    if (!file) return;
 
-    for(const auto& cmd : history_) {
+    for (const auto& cmd : history_) {
         file << cmd << '\n';
     }
 }
 
 void History::add(const std::string& command) {
-    if(command.empty() || command[0] == ' ') return; // skip empty commands
+    if (command.empty() || command[0] == ' ') return; // skip empty commands
 
     // delete dublicates
     auto iter = std::find(history_.begin(), history_.end(), command);
@@ -49,7 +49,7 @@ void History::add(const std::string& command) {
 
 void History::print() {
     std::ifstream file(historyFile_);
-    if(!file) return;
+    if (!file) return;
     
     int count = 0;
     std::string buffer{};
@@ -69,11 +69,11 @@ size_t History::size() {
 }
 
 absl::StatusOr<std::string> History::last() const {
-    if(history_.empty()) return absl::NotFoundError("No commands in history");
+    if (history_.empty()) return absl::NotFoundError("No commands in history");
     return history_.back();
 }
 
 absl::StatusOr<std::string> History::get(int n) const {
-    if(n < 1 || n > static_cast<int>(history_.size())) return absl::NotFoundError(absl::StrCat("Invalid history index: ", n));
+    if (n < 1 || n > static_cast<int>(history_.size())) return absl::NotFoundError(absl::StrCat("Invalid history index: ", n));
     return history_[n - 1];
 }
