@@ -42,11 +42,11 @@ void Shell::REPL() {
             }
         } 
         else {
-            stringCWD_ = "unknown";
+            stringCWD_ = "Unknown";
         }
 
         // Read
-        std::string promt = distName_ + " | " + stringCWD_ + " | moser> ";
+        std::string promt = CYAN_ + distName_ + RESET_ + ":" + GREEN_ + stringCWD_ + RESET_ + ":" + BLUE_ + "moser> " + RESET_;
         char* input = readline(promt.c_str());
 
         if(!input) break; // If EOF (Ctrl + D)
