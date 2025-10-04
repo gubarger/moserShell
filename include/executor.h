@@ -15,10 +15,14 @@ public:
 
     void set_input_redirection(const std::string& file) { inputFile_ = file; }
     void set_output_redirection(const std::string& file, bool append = false) { 
-        outputFile_ = file; 
+        outputFile_ = file;
         appendOutput_ = append;
     }
     void set_error_redirection(const std::string& file) { errorFile_ = file; }
+    void set_background(bool bg) { background_ = bg; }
+
+    void execute_background(const std::vector<std::string>& tokens);
+    void check_background_processes();
 
 public:
     // for <, >, 2>, &, >>
@@ -37,6 +41,7 @@ private:
     int error_ = STDERR_FILENO;
 
     std::vector<pid_t> childPids_{};
+    std::vector<pid_t> backgroundPids_{};
     std::vector<std::string> args_{};
 };
 

@@ -55,7 +55,7 @@ std::vector<std::string> Parser::tokenize(const std::string& input) {
                     }
                 }
 
-                if (symbol == '|' || symbol == '>' || symbol == '<') {
+                if (symbol == '|' || symbol == '>' || symbol == '<' || symbol == '&') {
                     if (!currentToken.empty()) {
                         tokens.push_back(currentToken);
                         currentToken.clear();

@@ -118,15 +118,27 @@ void Shell::REPL() {
                 history.print();
                 continue;
             }
-            else {
-                // TODO: add command execution logic here
+            else { // Execute
+                bool isBackground = false;
+
+                if (!tokens.empty() && tokens.back() == "&") {
+                    isBackground = true;
+                    tokens.pop_back(); // Remove the &
+                }
+
                 pars.process_redirection(tokens, exec);
 
                 if (!tokens.empty()) {
-                    exec.execute_command(tokens);
+                    if (isBackground) {
+                        exec.execute_background(tokens);
+                    }
+                    else {
+                        exec.execute_command(tokens);
+                    }
                 }
             }
         }
+        exec.check_background_processes();
         free(input);
     }
     write_history(".moser_history");

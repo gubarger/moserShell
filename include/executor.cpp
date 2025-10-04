@@ -9,17 +9,33 @@ void Executor::execute_command(const std::vector<std::string>& tokens) {
     auto pipePos = std::find(tokens.begin(), tokens.end(), "|");
 
     if (pipePos == tokens.end()) { // No pipe - simple command
-        execute_simple_command(tokens, input_, out_, error_);
+        int pid = execute_simple_command(tokens, input_, out_, error_);
+
+        if (!background_) {
+            waitpid(pid, &status_, 0);
+        }
+        else {
+            std::cout << "Process work, PID: " << pid << '\n';
+            backgroundPids_.push_back(pid);
+        }
     }
     else { // Yes pipe - separating commands
         std::vector<std::string> cmdLeft(tokens.begin(), pipePos);
         std::vector<std::string> cmdRight(pipePos + 1, tokens.end());
 
         execute_pipeline_command(cmdLeft, cmdRight);
-    }
 
-    for (pid_t pid : childPids_) { // Waiting the pids
-        waitpid(pid, &status_, 0);
+        if (!background_) {
+            for (pid_t pid : childPids_) {
+                waitpid(pid, &status_, 0);
+            }
+        }
+        else {
+            for (pid_t pid : childPids_) {
+                std::cout << "Background process started, PID: " << pid << '\n';
+                backgroundPids_.push_back(pid);
+            }
+        }
     }
 
     // Reset redirection state for each new command
@@ -27,6 +43,7 @@ void Executor::execute_command(const std::vector<std::string>& tokens) {
     outputFile_.clear();
     errorFile_.clear();
     appendOutput_ = false;
+    background_ = false;
 }
 
 pid_t Executor::execute_simple_command(const std::vector<std::string>& tokens, int inputfd, int outfd, int errorfd) {
@@ -134,4 +151,30 @@ void Executor::execute_pipeline_command(const std::vector<std::string>& left, co
         return;
     }
     close(pipefd[0]);
+}
+
+void Executor::execute_background(const std::vector<std::string>& tokens) {
+    background_ = true;
+    execute_command(tokens);
+    background_ = false;
+}
+
+void Executor::check_background_processes() {
+    auto iter = backgroundPids_.begin();
+
+    while (iter != backgroundPids_.end()) {
+        pid_t result = waitpid(*iter, &status_, WNOHANG);
+
+        if (result > 0) {
+            std::cout << "Background process " << *iter << " finished\n";
+            iter = backgroundPids_.erase(iter);
+        } 
+        else if (result == 0) {
+            ++iter;
+        } 
+        else {
+            perror("waitpid failed");
+            iter = backgroundPids_.erase(iter);
+        }
+    }
 }
